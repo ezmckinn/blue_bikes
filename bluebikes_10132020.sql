@@ -116,6 +116,20 @@ COPY trips FROM '/Volumes/Samsung_T5/BlueBikes_COVID_Project/raw_data/202005-blu
 COPY trips FROM '/Volumes/Samsung_T5/BlueBikes_COVID_Project/raw_data/202004-bluebikes-tripdata.csv' DELIMITER ',' CSV HEADER;
 COPY trips FROM '/Volumes/Samsung_T5/BlueBikes_COVID_Project/raw_data/202003-bluebikes-tripdata.csv' DELIMITER ',' CSV HEADER;
 
+-- correct typo in Graham St station
+
+UPDATE public.trips SET start_loc = 'Graham and Parks School' WHERE start_loc LIKE 'Graham%';
+UPDATE public.trips SET end_loc = 'Graham and Parks School' WHERE end_loc LIKE 'Graham%';
+UPDATE public.start_st SET loc = 'Graham and Parks School' WHERE loc LIKE 'Graham%';
+UPDATE public.end_st SET loc = 'Graham and Parks School' WHERE loc LIKE 'Graham%';
+
+-- correct namespace issue in Mt. Auburn station
+
+UPDATE public.trips SET start_loc = '699 Mt. Auburn St' WHERE start_loc LIKE '699 Mt Auburn St';
+UPDATE public.trips SET end_loc = '699 Mt. Auburn St' WHERE end_loc LIKE '699 Mt Auburn St';
+UPDATE public.start_st SET loc = '699 Mt. Auburn St' WHERE loc LIKE '699 Mt Auburn St';
+UPDATE public.end_st SET loc = '699 Mt. Auburn St' WHERE loc LIKE '699 Mt Auburn St';
+
 -- split date columns on trips 
 
 ALTER TABLE trips

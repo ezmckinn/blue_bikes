@@ -3,29 +3,42 @@ library(shiny)
 library(leaflet)
 library(ggplot2)
 library(sf)
-library(dplyr)
+library(tidyverse)
 library(DT)
 library(rgdal)
 library(RColorBrewer)
 library(ggspatial)
 
 #Set working directory 
-setwd("/Volumes/Samsung_T5/BlueBikes_COVID_Project/")
 
 #load data
 #Define Map Data
-segments <- st_read("/Volumes/Samsung_T5/BlueBikes_COVID_Project/data_for_viz/cambridge_results.geojson") %>% arrange(desc(count))
-stations <- st_read("/Volumes/Samsung_T5/BlueBikes_COVID_Project/data_for_viz/stations.geojson")
-city <- st_read("/Volumes/Samsung_T5/BlueBikes_COVID_Project/BOUNDARY_CityBoundary.shp.zip")
-city <- st_transform(city, "+proj=longlat +datum=WGS84") %>% st_transform(4326) %>% st_cast("MULTILINESTRING") #trasnform from shapefile back into lat/lon #transform city data back into 4326
-arr_dep <- read.csv("/Volumes/Samsung_T5/BlueBikes_COVID_Project/data_for_viz/hourly_trip_results.csv")
+segments <- st_read("https://raw.githubusercontent.com/ezmckinn/multimodal_pandemic/main/cambridge_results.geojson") %>% arrange(desc(count))
+stations <- st_read("https://raw.githubusercontent.com/ezmckinn/multimodal_pandemic/main/stations.geojson")
+city <- st_read("https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/master/Boundary/City_Boundary/BOUNDARY_CityBoundary.geojson") 
+city <- city %>% st_transform("+proj=longlat +datum=WGS84") %>% st_transform(4326)
+#transform from shapefile back into lat/lon #transform city data back into 4326
+arr_dep <- read.csv("https://raw.githubusercontent.com/ezmckinn/multimodal_pandemic/main/hourly_trip_results.csv")
+
+
+stations <- within(stations, Name[Name == '699 Mt Auburn St'] <- '699 Mt. Auburn St')
+segments <- within(segments, start_loc[start_loc == '699 Mt Auburn St'] <- '699 Mt. Auburn St')
+segments <- within(segments, end_loc[end_loc == '699 Mt Auburn St'] <- '699 Mt. Auburn St')
+arr_dep <- within(arr_dep, loc[loc == '699 Mt Auburn St'] <- '699 Mt. Auburn St')
+
+stations <- within(stations, Name[Name == 'Graham and Parks School ? Linnaean St at Walker St'] <- 'Graham and Parks')
+segments <- within(segments, start_loc[start_loc == 'Graham and Parks School ? Linnaean St at Walker St'] <- 'Graham and Parks')
+segments <- within(segments, end_loc[end_loc == 'Graham and Parks School ? Linnaean St at Walker St'] <- 'Graham and Parks')
+arr_dep <- within(arr_dep, loc[loc == 'Graham and Parks School ? Linnaean St at Walker St'] <- 'Graham and Parks')
 
 # Define server logic 
 shinyServer(function(input, output) {
 
+  #city <- st_transform(city, "+proj=longlat +datum=WGS84") %>% st_transform(4326) %>% st_cast("MULTILINESTRING") #trasnform from shapefile back into lat/lon #transform city data back into 4326
+  
   map_data <- segments %>% 
     group_by(start_loc)  %>%
-    filter(start_loc == 'MIT Vassar St')
+    filter(start_loc == 'Central Square at Mass Ave / Essex St')
   
   start_pal <- colorBin( 
     palette = "BuGn",
@@ -49,10 +62,6 @@ shinyServer(function(input, output) {
   #Set up Palettes for maps
   marker_pal <- colorFactor(c("grey","grey","#63B7CF","grey","grey","grey"), domain = c("Cambridge","Boston","Brookline","Somerville","Everett","Watertown"))
 
-    #Line Graph
-
-    #https://stackoverflow.com/questions/59585109/filtering-data-reactively-to-generate-maps
-  
     #Set Base Leaflet Map
     output$mymap <- renderLeaflet({ 
       
@@ -74,11 +83,12 @@ shinyServer(function(input, output) {
                            color = ~marker_pal(District), opacity = .9,
                            popup = paste(stations$Name, "<br>", "Docks:", stations$Total.docks),
                            options = c(popupOptions(autoPan = TRUE),
-                                        pathOptions(pane = "points"))) 
+                                        pathOptions(pane = "points")
+                                        )) 
     })
     
      #set default segment value for map 
-    default <- reactive({if_else(is.null(input$mymap_marker_click), 'MIT Vassar St', input$mymap_marker_click$id)})
+    default <- reactive({if_else(is.null(input$mymap_marker_click), 'Central Square at Mass Ave / Essex St', input$mymap_marker_click$id)})
     
     #Set up Leaflet Proxy For Map Interaction
       observeEvent(c(input$mymap_marker_click, input$test, input$prop), {
@@ -111,7 +121,7 @@ shinyServer(function(input, output) {
        leafletProxy("mymap", data = map_data) %>%
          clearControls() %>% 
          clearGroup('data') %>%
-         addPolylines(smoothFactor = 0.2, opacity = 0.5, #style polylines 
+         addPolylines(smoothFactor = 0.2, opacity = 0.75, #style polylines 
                       color = ~pal()(count), weight = 2, stroke = TRUE, group = 'data',
                       options = c(pathOptions(interactive = TRUE, pane = "polygons"),
                                   popupOptions(autoPan = TRUE)),
@@ -128,8 +138,8 @@ shinyServer(function(input, output) {
         geom_bar(stat="identity") +
         theme(legend.title = element_blank()) +
         scale_fill_manual(values=c("#66c2a4", "#f768a1"), labels = c("Departures", "Arrivals")) +
-        xlab("Trip Count") +
-        ylab("Hour") 
+        xlab("Hour") +
+        ylab("Trip Count") 
        
      })
      

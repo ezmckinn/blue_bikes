@@ -13,7 +13,7 @@ library(ggspatial)
 # Define UI for application that draws a histogram
 shinyUI(
     
-    navbarPage(strong("Cambridge Blue Bikes"), id = "nav",
+    navbarPage("Cambridge Blue Bikes", id = "nav",
                
     tabPanel("Map",
                    div(class = "outer",
@@ -26,7 +26,7 @@ shinyUI(
             leafletOutput("mymap", height ="100%", width = "100%"),
           
             absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
-                         draggable = TRUE, top = 50, left = "auto", right = 25, bottom = "auto",
+                         draggable = TRUE, top = 100, left = "auto", right = 25, bottom = "auto",
                          width = "20%", height = "auto",
                        
                        h4(strong("Instructions")),
@@ -39,7 +39,7 @@ shinyUI(
                        #            choices = c("All", "MIT at Mass Ave / Amherst St", segments$start_loc[segments$start_loc != "MIT at Mass Ave / Amherst St"]),
                        #            selected = "MIT at Mass Ave / Amherst St"),
                        
-                       p("These data reflect Blue Bike trips made to and from Cambridge, from March to September 2020."),
+                       p("These data reflect Blue Bike trips made to and from Cambridge, MA, from March to September 2020."),
                        p("Use these controls to change the data displayed."),
                        p("The chart below shows daily trip patterns by station."),
                        
@@ -99,7 +99,7 @@ shinyUI(
              
              p(''),
              p("Data for this project were provided by", a("Blue Bikes Boston.", href = "https://www.bluebikes.com/system-data"), "Emmett McKinney visualized the data using PostgreSQL, PostGIS, Leaflet, and R."),
-             p("Learn more about Emmett's work through his ", a("portfolio,", href = "bit.ly/ezm_design_0620"), "and find him on ", a("LinkedIn, ", href = "bit.ly/ezm_design_0620"), a("GitHub, ", href = "https://github.com/ezmckinn/"), "or ", a("Twitter", href = "https://twitter.com/EmmettMcKinney"))
+             p("Learn more about Emmett's work through his ", a("portfolio,", href = "https://bit.ly/ezm_design_0620"), "and find him on ", a("LinkedIn, ", href = "https://www.linkedin.com/in/emmettmckinney/"), a("GitHub, ", href = "https://github.com/ezmckinn/"), "or ", a("Twitter", href = "https://twitter.com/EmmettMcKinney"))
       )  
       
     )
