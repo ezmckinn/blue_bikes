@@ -82,7 +82,7 @@ CREATE TABLE segment AS
 	FROM end_st AS e
 	CROSS JOIN start_st AS s;
 
--- Assing a unique ID to each O-D pair
+-- Adding a unique ID to each O-D pair
 ALTER TABLE segment 
 ADD COLUMN segment_id SERIAL NOT NULL;
 
